@@ -6,8 +6,7 @@ Attributes in each class are removed with a probability of 0.7. Classes are remo
 
 **Fine-tuning of the models**
 Two models are used for finetuning
-1. BERT
-
+1. T5
 
 
 2. Mistral
