@@ -3,6 +3,13 @@ import random
 import copy
 import os
 
+namespaces_org = {
+    'xmi': 'http://schema.omg.org/spec/XMI/2.1',
+    'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+    'uml': 'http://www.eclipse.org/uml2/5.0.0/UML',
+
+}
+
 
 def parse_xmi(file_path):
     """
@@ -54,25 +61,22 @@ def remove_random_attributes(class_elem, removal_probability=0.5):
     :param removal_probability: the probability of removing an attribute
     """
     attributes = get_class_attributes(class_elem)
+    attributes_removed = []
     for attr in attributes:
         if random.random() < removal_probability:
             print(attr.attrib)
+            attributes_removed.append(attr)
             class_elem.remove(attr)
+    return attributes_removed
 
 
-def remove_element(root, element):
+def register_namespaces(namespaces):
     """
-    Removes an element from the tree.
-    :param root:  the root element
-    :param element:  the element to remove
-    :return:  the modified tree
+    Registers namespaces with their prefixes to ensure they are preserved in the output.
+    :param namespaces: A dictionary of namespace prefixes to URIs.
     """
-    for parent in root.iter():
-        for child in parent:
-            if child == element:
-                print(child.attrib)
-                parent.remove(child)
-                return
+    for prefix, uri in namespaces.items():
+        ET.register_namespace(prefix, uri)
 
 
 def remove_elements_with_matching_attribute_value(root, class_id):
@@ -81,9 +85,11 @@ def remove_elements_with_matching_attribute_value(root, class_id):
 
     :param root: The root element of the XML tree.
     :param class_id: The class ID to match against attribute values.
+    :return: the elements removed
     """
     # Create a list to hold elements to be removed to avoid modifying the tree while iterating
     elements_to_remove = []
+    elements_to_return = []
     print(class_id)
 
     # Use a recursive function to track parent elements
@@ -91,7 +97,9 @@ def remove_elements_with_matching_attribute_value(root, class_id):
         # Check each attribute of the element for a match with class_id
         if class_id in elem.attrib.values():
             elements_to_remove.append((parent, elem))
+            elements_to_return.append(elem)
         # Recursively check all child elements
+
         for child in elem:
             find_elements_to_remove(child, elem)
 
@@ -99,12 +107,20 @@ def remove_elements_with_matching_attribute_value(root, class_id):
     find_elements_to_remove(root)
 
     # Remove the collected elements from their parents
-    for parent, element in elements_to_remove:
+    for parent, elem in elements_to_remove:
         if parent is not None:
-            parent.remove(element)
+            parent.remove(elem)
+
+    return elements_to_return
 
 
-def create_modified_xmi(root, namespaces):
+def create_modified_xmi_2(root, namespaces):
+    """
+    Creates a modified XMI file by removing attributes or classes from the UML model. The modified XMI file is returned.
+    :param root:  the root element
+    :param namespaces:  the namespaces
+    :return:  the modified XMI file
+    """
     modified_root = copy.deepcopy(root)
     classes = get_classes(modified_root, namespaces)
 
@@ -116,27 +132,81 @@ def create_modified_xmi(root, namespaces):
 
         else:
             print("class")
-            print(class_elem.attrib)
 
-            # Check if the class element has an attribute ID
-            class_id = class_elem.attrib.get(f"{{{namespaces['xmi']}}}id", None)
-            if class_id:
-                # If class_elem has an attribute ID, call remove_elements_with_matching_attribute_value
-                remove_elements_with_matching_attribute_value(modified_root, class_id)
-            else:
-                # If class_elem does not have an attribute ID, call remove_element
-                remove_element(modified_root, class_elem)
+            remove_elements_with_matching_attribute_value(modified_root,
+                                                          class_elem.attrib[f"{{{namespaces['xmi']}}}id"])
 
     return modified_root
 
 
-def register_namespaces(namespaces):
+def create_xmi_from_elements(element_trees, filepath, namespaces):
     """
-    Registers namespaces with their prefixes to ensure they are preserved in the output.
-    :param namespaces: A dictionary of namespace prefixes to URIs.
+    Creates a new XMI file from a list of ElementTree objects. The new file is saved to the specified path.
+    :param element_trees:  a list of ElementTree objects
+    :param filepath:  the path to save the new XMI file
+    :return:  the XML string
     """
-    for prefix, uri in namespaces.items():
-        ET.register_namespace(prefix, uri)
+    root = ET.Element("XMI")
+    register_namespaces(namespaces)
+
+    if len(element_trees) <= 0:
+        with open(filepath + ".xmi", "w") as file:
+            file.write("")
+        return
+    for tree in element_trees:
+        # Import this root into the new root
+        root.append(tree)
+
+    # Serialize to string
+    xml_string = ET.tostring(root, encoding='unicode', method='xml')
+    # Find the position of the first closing tag of the root element
+    pos = xml_string.find('>')
+
+    # Insert a newline right after the first closing bracket
+    if pos != -1:
+        xml_string = xml_string[:pos+1] + '\n    ' + xml_string[pos+1:]
+
+
+    # Save to file
+    with open(filepath + ".xmi", "w") as file:
+        file.write(xml_string)
+
+
+def remove_a_class(root, namespaces):
+    modified_root = copy.deepcopy(root)
+    classes = get_classes(modified_root, namespaces)
+    if len(classes) == 0:
+        return []
+    class_elem = random.choice(classes)
+    # Check if the class element has an attribute ID
+    class_id = class_elem.attrib.get(f"{{{namespaces['xmi']}}}id", None)
+    if class_id:
+
+        elements = remove_elements_with_matching_attribute_value(modified_root,
+                                                                 class_elem.attrib[f"{{{namespaces['xmi']}}}id"])
+    else:
+        # If class_elem does not have an attribute ID, call remove_element
+        elements = remove_element(modified_root, class_elem)
+
+    return elements
+
+
+def remove_element(root, element):
+    """
+    Removes an element from the tree.
+    :param root:  the root element
+    :param element:  the element to remove
+    :return:  the modified tree
+    """
+    elements = []
+    for parent in root.iter():
+        for child in parent:
+            if child == element:
+                print(child.attrib)
+                elements.append(child)
+                parent.remove(child)
+                return elements
+    return elements
 
 
 def process_folder_to_file(input_folder, output_folder):
@@ -161,16 +231,12 @@ def process_folder_to_file(input_folder, output_folder):
 
         # Register namespaces to preserve prefixes
         register_namespaces(namespaces)
-
-        modified_root = create_modified_xmi(root, namespaces)
+        elements = remove_a_class(root, namespaces)
         output_file = os.path.join(output_folder, file_output + "_modified.xmi")
-        tree = ET.ElementTree(modified_root)
-        tree.write(output_file, encoding="utf-8", xml_declaration=True, )
+        create_xmi_from_elements(elements, output_file, namespaces)
 
         print(f"Processed {xmi_file} and generated modified XMI file in {file_output}")
 
 
-if __name__ == '__main__':
-    input_folder = "modelset_extract/modelset/raw-data/repo-genmymodel-uml/data"
-    output_folder = "output"
-    process_folder_to_file(input_folder, output_folder)
+if __name__ == "__main__":
+    process_folder_to_file("modelset/raw-data/repo-genmymodel-uml/data", "output")
