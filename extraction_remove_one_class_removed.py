@@ -150,7 +150,7 @@ def create_xmi_from_elements(element_trees, filepath, namespaces):
     register_namespaces(namespaces)
 
     if len(element_trees) <= 0:
-        with open(filepath + ".xmi", "w") as file:
+        with open(filepath, "w") as file:
             file.write("")
         return
     for tree in element_trees:
@@ -168,12 +168,12 @@ def create_xmi_from_elements(element_trees, filepath, namespaces):
 
 
     # Save to file
-    with open(filepath + ".xmi", "w") as file:
+    with open(filepath, "w") as file:
         file.write(xml_string)
 
 
-def remove_a_class(root, namespaces):
-    modified_root = copy.deepcopy(root)
+def remove_a_class(modified_root, namespaces):
+
     classes = get_classes(modified_root, namespaces)
     if len(classes) == 0:
         return []
@@ -231,8 +231,14 @@ def process_folder_to_file(input_folder, output_folder):
 
         # Register namespaces to preserve prefixes
         register_namespaces(namespaces)
-        elements = remove_a_class(root, namespaces)
+        modified_root = copy.deepcopy(root)
+        elements = remove_a_class(modified_root, namespaces)
         output_file = os.path.join(output_folder, file_output + "_modified.xmi")
+        input_file = os.path.join("input", file_output + "_input.xmi")
+        tree = ET.ElementTree(modified_root)
+        tree.write(input_file, encoding="utf-8", xml_declaration=True, )
+
+
         create_xmi_from_elements(elements, output_file, namespaces)
 
         print(f"Processed {xmi_file} and generated modified XMI file in {file_output}")
