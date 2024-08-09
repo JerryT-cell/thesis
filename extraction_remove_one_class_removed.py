@@ -168,7 +168,7 @@ def create_xmi_from_elements(element_trees, filepath, namespaces):
 
 
     # Save to file
-    with open(filepath, "w") as file:
+    with open(filepath, 'w', encoding='utf-8') as file:
         file.write(xml_string)
 
 
@@ -245,4 +245,4 @@ def process_folder_to_file(input_folder, output_folder):
 
 
 if __name__ == "__main__":
-    process_folder_to_file("modelset/raw-data/repo-genmymodel-uml/data", "output")
+    process_folder_to_file("modelset_extract/modelset/raw-data/repo-genmymodel-uml/data", "output")
