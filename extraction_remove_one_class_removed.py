@@ -19,7 +19,6 @@ def parse_xmi(file_path):
     """
     tree = ET.parse(file_path)
     root = tree.getroot()
-    print(root.tag)
     return root
 
 
