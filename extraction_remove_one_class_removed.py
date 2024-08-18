@@ -233,7 +233,7 @@ def process_folder_to_file(input_folder, output_folder):
         modified_root = copy.deepcopy(root)
         elements = remove_a_class(modified_root, namespaces)
         output_file = os.path.join(output_folder, file_output + "_modified.xmi")
-        input_file = os.path.join("input", file_output + "_input.xmi")
+        input_file = os.path.join("xmi_dataset_one_class_removed/input", file_output + "_input.xmi")
         tree = ET.ElementTree(modified_root)
         tree.write(input_file, encoding="utf-8", xml_declaration=True, )
 
@@ -244,4 +244,4 @@ def process_folder_to_file(input_folder, output_folder):
 
 
 if __name__ == "__main__":
-    process_folder_to_file("modelset_extract/modelset/raw-data/repo-genmymodel-uml/data", "output")
+    process_folder_to_file("modelset_extract/raw-data/repo-genmymodel-uml/data", "output")

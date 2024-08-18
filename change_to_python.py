@@ -331,12 +331,12 @@ class TokenCounter:
 
 
 if __name__ == "__main__":
-    base_json_folder = 'modelset/graph/repo-genmymodel-uml/data'
-    folder_2000 = 'json<2000'
-    folder_3000 = 'json<3000'
+    base_json_folder = 'modelset_extract/graph/repo-genmymodel-uml/data'
+    folder_2000 = 'json2000'
+    folder_3000 = 'json3000'
     token = TokenCounter()
-    # token.collect_json_files(base_json_folder, target_folder, 2000)
-    # token.collect_json_files(base_json_folder, 'json<3000', 3000)
+    token.collect_json_files(base_json_folder, folder_2000, 2000)
+    token.collect_json_files(base_json_folder, folder_3000, 3000)
     token.max_tokens_in_files(folder_2000)
     token.max_tokens_in_files(folder_3000)
     print("There are : " + str(token.count_files_in_folder(folder_2000)) + " files in json<2000")

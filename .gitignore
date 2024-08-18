@@ -1,4 +1,4 @@
 modelset_extract/
 *.jsonl
-output/
+xmi_dataset_one_class_removed/output/
 */

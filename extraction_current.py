@@ -171,6 +171,6 @@ def process_folder_to_file(input_folder, output_folder):
 
 
 if __name__ == '__main__':
-    input_folder = "modelset_extract/modelset/raw-data/repo-genmymodel-uml/data"
+    input_folder = "modelset_extract/raw-data/repo-genmymodel-uml/data"
     output_folder = "output"
     process_folder_to_file(input_folder, output_folder)
