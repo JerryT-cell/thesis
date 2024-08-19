@@ -1,7 +1,21 @@
 from transformers import AutoTokenizer
 import os
-from extraction_remove_one_class_removed import parse_xmi, namespaces_org, get_classes, get_class_attributes, ET
+from extraction_xmi_remove_one_class_removed import parse_xmi, namespaces_org, get_classes, get_class_attributes, ET
 import shutil
+from json_extraction_util import count_json_files_with_strings
+
+
+def count_files_in_folder(folder_path: str) -> int:
+    """
+    Counts the number of files in a folder.
+
+    :param folder_path: The path to the folder.
+    :return: The number of files in the folder.
+    """
+    file_count = 0
+    for _ in os.listdir(folder_path):
+        file_count += 1
+    return file_count
 
 
 class TokenCounter:
@@ -74,18 +88,6 @@ class TokenCounter:
 
         for category, count in token_counts.items():
             print(f"Number of xmi files with tokens {category}: {count}")
-
-    def count_files_in_folder(self, folder_path: str) -> int:
-        """
-        Counts the number of files in a folder.
-
-        :param folder_path: The path to the folder.
-        :return: The number of files in the folder.
-        """
-        file_count = 0
-        for _ in os.listdir(folder_path):
-            file_count += 1
-        return file_count
 
     def read_until_first_xmi_class(self, file_path: str) -> str:
         """
@@ -298,36 +300,7 @@ class TokenCounter:
                 max_tokens = num_tokens
         print(f"Max number of tokens in json files: {max_tokens}")
 
-    def if_string_is_present(self, file_path: str, search_string: str) -> bool:
-        """
-        Reads the content of the file until it encounters the string 'packagedElement xsi:type="uml:Class"'.
 
-        :param file_path: The path to the file.
-        :return: The content read until the specified string is found.
-        """
-        with open(file_path, 'r', encoding='utf-8') as file:
-            for line in file:
-                if search_string in line:
-                    return True
-        return False
-
-    def count_files_with_string(self, folder_path: str, search_strings) -> int:
-        """
-        Counts the number of files in a folder.
-
-        :param search_strings:
-        :param folder_path: The path to the folder.
-        :return: The number of files in the folder.
-        """
-        file_count = 0
-        for file_name in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, file_name)
-            if os.path.isfile(file_path):
-                for search_string in search_strings:
-                    if self.if_string_is_present(file_path, search_string):
-                        file_count += 1
-                        break
-        return file_count
 
 
 if __name__ == "__main__":
@@ -339,10 +312,10 @@ if __name__ == "__main__":
     token.collect_json_files(base_json_folder, folder_3000, 3000)
     token.max_tokens_in_files(folder_2000)
     token.max_tokens_in_files(folder_3000)
-    print("There are : " + str(token.count_files_in_folder(folder_2000)) + " files in json<2000")
+    print("There are : " + str(count_files_in_folder(folder_2000)) + " files in json<2000")
     print("Number of folders with activity diagrams and model_use_cases in json<2000: " +
-          str(token.count_files_with_string(folder_2000, ['::Activity', 'model::UseCase'])))
-    token.count_files_in_folder(folder_3000)
-    print("There are : " + str(token.count_files_in_folder(folder_3000)) + " files in json<3000")
+          str(count_json_files_with_strings(folder_2000, ['::Activity', 'model::UseCase'])))
+    count_files_in_folder(folder_3000)
+    print("There are : " + str(count_files_in_folder(folder_3000)) + " files in json<3000")
     print("Number of folders with activity diagrams and model_use_cases in json<3000: " +
-          str(token.count_files_with_string(folder_3000, ['::Activity', 'model::UseCase'])))
+          str(count_json_files_with_strings(folder_3000, ['::Activity', 'model::UseCase'])))
