@@ -171,15 +171,50 @@ def formating_current_files():
 
 
 def extract_a_class_at_random_from_folder(folder_path):
+    """
+    Extracts a class at random from each file in a folder.
+    remove all json objects of contains the id of that class
+    saves each extracted class to a file and save it in a folder.
+    saves the original file without the class removed in another folder.
+    :param folder_path: the folder path where all the files can be found
+    :return: none
+    """
+    os.makedirs(folder_path + "_class_removed", exist_ok=True)
+    os.makedirs(folder_path + "_class_extracted", exist_ok=True)
+    for file_name in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as file:
+            json_string = file.read()
+            if '"eClass":"Class"' in json_string:
+                class_start = json_string.find('"eClass":"Class"')
+                class_end = json_string.find('"eClass":"Class"', class_start + 1)
+                if class_end == -1:
+                    class_end = json_string.find("}", class_start)
+                class_string = json_string[class_start: class_end + 1]
+                class_removed = json_string.replace(class_string, "")
+                class_removed_file_path = os.path.join(folder_path + "_class_removed", file_name)
+                class_extracted_file_path = os.path.join(folder_path + "_class_extracted", file_name)
+                with open(class_removed_file_path, "w") as class_removed_file:
+                    class_removed_file.write(class_removed)
+                with open(class_extracted_file_path, "w") as class_extracted_file:
+                    class_extracted_file.write(class_string)
 
-
-
-
-
+    for file_name in os.listdir(folder_path):
+        file_path = os.path.join(folder_path, file_name)
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as file:
+            json_string = file.read()
+            json_object = json.loads(json_string)
+            class_id = json_object["id"]
+            # remove all json objects of contains the id of that class
+            for key in json_object:
+                if json_object[key] == class_id:
+                    del json_object[key]
+            # save the extracted class to a file and save it in a folder.
 
 
 def zip_folder(folder_path):
     shutil.make_archive(folder_path, 'zip', folder_path)
+
 
 def unzip_folder(folder_path):
     shutil.unpack_archive(folder_path, folder_path.append("unzipped"))
@@ -189,4 +224,3 @@ if __name__ == "__main__":
     #formating_current_files()
     zip_folder("small_dataset")
     #extract_class_diagrams()
-
