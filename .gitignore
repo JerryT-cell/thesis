@@ -1,4 +1,5 @@
 *.jsonl
-!*/util_folder/
 */
 *.zip
+!util_folder/
+!util_folder/**
