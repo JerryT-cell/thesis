@@ -352,6 +352,7 @@ def formating_current_files():
     #format_all_json_files("json_dataset/json3000", "json_dataset/formatted_json/json3000_formatted")
     #format_all_json_files("json_dataset/json3000_class_diagrams",
     #                     "json_dataset/formatted_json/with_classes/json3000_class_diagram_formatted")
+    format_all_json_files("json_files/json_dataset/json8192","json_files/json_dataset/json8192_formated")
 
 
 
@@ -364,4 +365,11 @@ if __name__ == "__main__":
     #extract_class_diagrams()
     #extract_software_models_type("json_dataset/json3000_formatted")
     #create_graph_image(read_file("json_dataset/json2000_class_diagrams/5c85815a-d7c3-42f1-a521-a40f1a9d9757.json"), 'graph.png')
-    extract_and_create_input_output_folders("../json_files/json_dataset/json2000", "2000")
+    #extract_and_create_input_output_folders("./json_files/json_dataset/json3000", "3000")
+    #extract_and_create_input_output_folders("./json_files/json_dataset/json4000", "4000")
+    #extract_and_create_input_output_folders("./json_files/json_dataset/json5000", "5000")
+    #extract_and_create_input_output_folders("./json_files/json_dataset/json6000", "6000")
+    #extract_and_create_input_output_folders("./json_files/json_dataset/json7000", "7000")
+    #extract_and_create_input_output_folders("./json_files/json_dataset/json8192", "8192")
+    #formating_current_files()
+    extract_software_models_type("json_files/json_dataset/json8192_formated")

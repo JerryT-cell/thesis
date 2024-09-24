@@ -304,18 +304,41 @@ class TokenCounter:
 
 
 if __name__ == "__main__":
-    base_json_folder = 'modelset_extract/graph/repo-genmymodel-uml/data'
-    folder_2000 = 'json2000'
-    folder_3000 = 'json3000'
     token = TokenCounter()
-    token.collect_json_files(base_json_folder, folder_2000, 2000)
-    token.collect_json_files(base_json_folder, folder_3000, 3000)
+    folder_4000 = '../json_files/json_dataset/json4000'
+    print("There are : " + str(count_files_in_folder(folder_4000)) + " files in json4000")
+    folder_3000 = 'json_files/json_dataset/json8192'
+    print("There are : " + str(count_files_in_folder(folder_3000)) + " files in json8192")
+    '''
+    base_json_folder = '../modelset/graph/repo-genmymodel-uml/data'
+    folder_2000 = 'json_files/json_dataset/json4000'
+    folder_3000 = 'json_files/json_dataset/json8192'
+    folder_5000 = 'json_files/json_dataset/json5000'
+    folder_6000 = 'json_files/json_dataset/json6000'
+    folder_7000 = 'json_files/json_dataset/json7000'
+
+    token.collect_json_files(base_json_folder, folder_2000, 4000)
+    token.collect_json_files(base_json_folder, folder_3000, 8192)
+    token.collect_json_files(base_json_folder, folder_5000, 5000)
+    token.collect_json_files(base_json_folder, folder_6000, 6000)
+    token.collect_json_files(base_json_folder, folder_7000, 7000)
+    print("max token 2000: ")
     token.max_tokens_in_files(folder_2000)
+    print("max token 8192: ")
     token.max_tokens_in_files(folder_3000)
+    print("max token 5000: ")
+    token.max_tokens_in_files(folder_5000)
+    print("max token 6000: ")
+    token.max_tokens_in_files(folder_6000)
+    print("max token 7000: ")
+    token.max_tokens_in_files(folder_7000)
     print("There are : " + str(count_files_in_folder(folder_2000)) + " files in json2000")
-    print("Number of folders with activity diagrams and model_use_cases in json2000: " +
-          str(count_json_files_with_strings(folder_2000, ['::Activity', 'model::UseCase'])))
     count_files_in_folder(folder_3000)
-    print("There are : " + str(count_files_in_folder(folder_3000)) + " files in json3000")
-    print("Number of folders with activity diagrams and model_use_cases in json3000: " +
-          str(count_json_files_with_strings(folder_3000, ['::Activity', 'model::UseCase'])))
+    print("There are : " + str(count_files_in_folder(folder_3000)) + " files in json8192")
+    print("There are : " + str(count_files_in_folder(folder_5000)) + " files in json5000")
+    print("There are : " + str(count_files_in_folder(folder_6000)) + " files in json6000")
+    print("There are : " + str(count_files_in_folder(folder_7000)) + " files in json7000")
+
+   '''
+    print("max token 2000: ")
+    token.max_tokens_in_files(folder_4000)
