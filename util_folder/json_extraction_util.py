@@ -42,6 +42,18 @@ def format_json(json_string):
     except json.JSONDecodeError as e:
         return f"Invalid JSON input: {e}"
 
+def format_json_file(file_path):
+    """
+    Format a JSON file.
+    :param file_path: the file path
+    """
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as file:
+        json_string = file.read()
+        formatted_json = format_json(json_string)
+        if formatted_json:
+            with open(file_path, "w") as output_file:
+                output_file.write(formatted_json)
+
 
 def copy_files_to_folder(file_list, destination_folder):
     """
@@ -110,7 +122,7 @@ def count_json_files_without_class_diagrams(folder_path: str):
 
 def get_json_files_from_folder_with_class_diagrams(folder_path):
     """
-    Returns the files_paths with class diagram in the folder.
+    Returns the files_paths from folder with class diagram.
     :param folder_path: the folder path
     :return: the files_paths with class diagram
     """
@@ -212,6 +224,7 @@ def extract_software_models_type(folder_path):
                     if software_model_type not in ['"Actor"\n', '"MergeNode"\n', '"InitialNode"\n', '"JoinNode"\n', '"EnumerationLiteral"','"Comment"\n','"DecisionNode"\n','"LiteralInteger"\n','"LiteralUnlimitedNat','"ActivityFinalNode"\n','"Usage"\n','"ForkNode"\n','"FlowFinalNode"\n']:
                         software_models_type.add(software_model_type)
     print(software_models_type)
+
 
 def create_graph_image(json_data, output_filename='graph.png'):
     """

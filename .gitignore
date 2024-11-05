@@ -1,5 +1,19 @@
-*.jsonl
-*/
-*.zip
+# Ignore everything
+*
+
+# Do not ignore these directories
+!data_preparation/
+!dataset_preparation_for_fine-tuning/
+!fine-tuning_llms/
+!statistical_analysis/
 !util_folder/
+!README.md
+!Inferencing.ipynb
+
+
+# Do not ignore files within these directories
+!data_preparation/**
+!dataset_preparation_for_fine-tuning/**
+!fine-tuning_llms/**
+!statistical_analysis/**
 !util_folder/**

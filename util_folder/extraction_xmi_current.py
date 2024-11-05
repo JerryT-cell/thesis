@@ -139,6 +139,82 @@ def register_namespaces(namespaces):
         ET.register_namespace(prefix, uri)
 
 
+def get_all_packaged_elements(input_folder):
+    """ give me the strings that come at place empt : <packagedElement xsi:type="uml:empt" from :
+     <packagedElement xsi:type="uml:Interaction" xmi:id="_zMmkLZIFEeqcytSjwrQ0Dg" name="Interaction"> in xmi from the xmi files in "modelset/raw-data/repo-genmymodel-uml/data" """
+    empty_elements = set()
+
+    # Get all XMI files in the input folder
+    xmi_files = [f for f in os.listdir(input_folder) if f.endswith('.xmi')]
+
+    for xmi_file in xmi_files:
+        input_file_path = os.path.join(input_folder, xmi_file)
+        tree = ET.parse(input_file_path)
+        root = tree.getroot()
+        namespaces = get_namespaces(input_file_path)
+
+        # Find all packagedElement elements with xsi:type attribute
+        for elem in root.findall(".//packagedElement[@xsi:type]", namespaces):
+            xsi_type = elem.attrib.get(f"{{{namespaces['xsi']}}}type")
+            if xsi_type and xsi_type.startswith('uml:'):
+                empty_elements.add(xsi_type.split(':')[1])
+
+    return empty_elements
+
+
+def get_examples_of_uml_diagrams(input_folder,output_folder,type_of_uml_diagrams, amount_example):
+    """
+    get the uml diagrams from each xml file "modelset/raw-data/repo-genmymodel-uml/data"
+    for every type of uml diagram, get the amount_example of examples.
+    for every typea of uml diagrams, find all packagedElement elemnts with <packagedElement xsi:type="uml:typea" from xmi
+    when you find the packagedElement, save the current xmi file in an output folder with the name of the typea
+    the output folder should be in the form of output_folder/typea
+    :param input_folder: the folder with the xmi files
+    :param output_folder: the folder where the output will be saved
+    :param type_of_uml_diagrams: the type of uml diagrams
+    :param amount_example: the amount of examples to get
+    :return: none
+    """
+    # Create the output folder if it does not exist
+    os.makedirs(output_folder, exist_ok=True)
+    # Get all XMI files in the input folder
+    xmi_files = [f for f in os.listdir(input_folder) if f.endswith('.xmi')]
+
+
+
+    for type in type_of_uml_diagrams:
+
+     folder_path = os.path.join(output_folder, type)
+     folder_path = str(folder_path)
+     os.makedirs(folder_path, exist_ok=True)
+
+     examples_collected = 0
+     for xmi_file in xmi_files:
+         if examples_collected >= amount_example:
+             break
+
+         input_file_path = os.path.join(input_folder, xmi_file)
+         tree = ET.parse(input_file_path)
+         root = tree.getroot()
+         namespaces = get_namespaces(input_file_path)
+
+         # Find all packagedElement elements with xsi:type attribute
+         for elem in root.findall(".//packagedElement[@xsi:type]", namespaces):
+             xsi_type = elem.attrib.get(f"{{{namespaces['xsi']}}}type").lower()
+             if xsi_type and xsi_type == f"uml:{type}".lower():
+                 output_file = os.path.join(folder_path, xmi_file)
+                 tree.write(output_file, encoding="utf-8", xml_declaration=True)
+                 examples_collected += 1
+                 print(f"Processed {xmi_file} and saved to {output_file}")
+                 break
+
+
+
+
+
+
+
+
 def process_folder_to_file(input_folder, output_folder):
     """
     Processes all XMI files in the input folder and generates a single output file with removed parts.
@@ -165,12 +241,15 @@ def process_folder_to_file(input_folder, output_folder):
         modified_root = create_modified_xmi(root, namespaces)
         output_file = os.path.join(output_folder, file_output + "_modified.xmi")
         tree = ET.ElementTree(modified_root)
-        tree.write(output_file, encoding="utf-8", xml_declaration=True, )
+        tree.write(output_file, encoding="utf-8", xml_declaration=True,)
 
         print(f"Processed {xmi_file} and generated modified XMI file in {file_output}")
 
 
 if __name__ == '__main__':
-    input_folder = "modelset_extract/raw-data/repo-genmymodel-uml/data"
-    output_folder = "output"
-    process_folder_to_file(input_folder, output_folder)
+    #input_folder = "modelset_extract/raw-data/repo-genmymodel-uml/data"
+    #output_folder = "output"
+    #process_folder_to_file(input_folder, output_folder)
+    #print(get_all_packaged_elements("/Users/jerrytakou/University/Thesis/programming/thesis/modelset/raw-data/repo-genmymodel-uml/data"))
+    get_examples_of_uml_diagrams("/Users/jerrytakou/University/Thesis/programming/thesis/modelset/raw-data/repo-genmymodel-uml/data",
+                                 "xmi_examples",["Class","Activity","StateMachine","Activity","Interaction","UseCase","Package","Component"],3)

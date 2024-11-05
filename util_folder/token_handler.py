@@ -305,40 +305,26 @@ class TokenCounter:
 
 if __name__ == "__main__":
     token = TokenCounter()
-    folder_4000 = '../json_files/json_dataset/json4000'
-    print("There are : " + str(count_files_in_folder(folder_4000)) + " files in json4000")
-    folder_3000 = 'json_files/json_dataset/json8192'
-    print("There are : " + str(count_files_in_folder(folder_3000)) + " files in json8192")
-    '''
+
     base_json_folder = '../modelset/graph/repo-genmymodel-uml/data'
-    folder_2000 = 'json_files/json_dataset/json4000'
-    folder_3000 = 'json_files/json_dataset/json8192'
-    folder_5000 = 'json_files/json_dataset/json5000'
-    folder_6000 = 'json_files/json_dataset/json6000'
-    folder_7000 = 'json_files/json_dataset/json7000'
+    folders = [
+        'json_files/json_dataset/json2000',
+        'json_files/json_dataset/json3000',
+        'json_files/json_dataset/json4000',
+        'json_files/json_dataset/json5000',
+        'json_files/json_dataset/json6000',
+        'json_files/json_dataset/json7000',
+        'json_files/json_dataset/json8000',
+        'json_files/json_dataset/json8500',
+        'json_files/json_dataset/json9000',
+        'json_files/json_dataset/json10000'
+    ]
 
-    token.collect_json_files(base_json_folder, folder_2000, 4000)
-    token.collect_json_files(base_json_folder, folder_3000, 8192)
-    token.collect_json_files(base_json_folder, folder_5000, 5000)
-    token.collect_json_files(base_json_folder, folder_6000, 6000)
-    token.collect_json_files(base_json_folder, folder_7000, 7000)
-    print("max token 2000: ")
-    token.max_tokens_in_files(folder_2000)
-    print("max token 8192: ")
-    token.max_tokens_in_files(folder_3000)
-    print("max token 5000: ")
-    token.max_tokens_in_files(folder_5000)
-    print("max token 6000: ")
-    token.max_tokens_in_files(folder_6000)
-    print("max token 7000: ")
-    token.max_tokens_in_files(folder_7000)
-    print("There are : " + str(count_files_in_folder(folder_2000)) + " files in json2000")
-    count_files_in_folder(folder_3000)
-    print("There are : " + str(count_files_in_folder(folder_3000)) + " files in json8192")
-    print("There are : " + str(count_files_in_folder(folder_5000)) + " files in json5000")
-    print("There are : " + str(count_files_in_folder(folder_6000)) + " files in json6000")
-    print("There are : " + str(count_files_in_folder(folder_7000)) + " files in json7000")
+    for i, folder in enumerate(folders, start=2):
+        token.collect_json_files(base_json_folder, folder, i * 1000)
 
-   '''
-    print("max token 2000: ")
-    token.max_tokens_in_files(folder_4000)
+
+    for folder in folders:
+        print(f"max token {folder.split('/')[-1]}: ")
+        token.max_tokens_in_files(folder)
+        print(f"There are : {count_files_in_folder(folder)} files in {folder.split('/')[-1]}")
