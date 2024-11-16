@@ -4,19 +4,26 @@ import json
 import random
 from typing import Set
 
-def divide_json_string_with_masks(input_folder: str, input_output_folder: str, output_folder: str, percentage: float = 0.2, left_and_Right: bool = False):
+def divide_json_string_with_masks(input_folder: str,
+                                  max_token_count: int,
+                                  folder_to_save: str,
+                                  percentage: float = 0.2,
+                                  left_and_Right: bool = False):
     """
     Divides the content of JSON files in the input folder into two parts based on the specified percentage.
     Replaces the second part with mask tokens and saves the modified JSON in the input_output_folder.
     Saves the masked content in the output_folder, each prefixed with its corresponding <Mask:k> token.
 
     Parameters:
-       input_folder (str): Path to the folder containing the original JSON files.
-       input_output_folder (str): Path to the folder where the modified JSON files will be saved.
-       output_folder (str): Path to the folder where the masked content will be saved.
-       percentage (float): The percentage of the string to allocate to the masked content (default is 0.2 for 20%).
+       :parameter input_folder : Path to the folder containing the original JSON files.
+       :param folder_to_save: Path to the folder where the modified JSON files will be saved.
+       :parameter max_token_count : Maximum number of tokens in the input sequence.
+       :parameter percentage : The percentage of elements to remove from each file.
        :param left_and_Right:  if True, it will create a file with the left and right parts swapped
     """
+    #create folders for input_output_folder and output_folder
+    input_output_folder = os.path.join(folder_to_save, 'processed_input' + str(max_token_count))
+    output_folder = os.path.join(folder_to_save, 'processed_output' + str(max_token_count))
     create_folders(input_output_folder, output_folder)
 
     for filename in os.listdir(input_folder):
@@ -58,9 +65,9 @@ def divide_json_string_with_masks(input_folder: str, input_output_folder: str, o
 
 def structurally_mask_contiguous_elements_and_save(
         input_folder: str,
-        input_output_folder: str,
-        output_folder: str,
-        percentage: float,
+        max_token_count: int,
+        folder_to_save: str,
+        percentage: float = 0.2,
         eclass_exclusions: Set[str] = {"Interaction", "Activity", "StateMachine"},
         right_and_left: bool = False
 ):
@@ -79,6 +86,8 @@ def structurally_mask_contiguous_elements_and_save(
         percentage (float): The percentage of elements to mask from each file.
         eclass_exclusions (Set[str]): Set of eClass names to exclude from masking.
     """
+    input_output_folder = os.path.join(folder_to_save, 'processed_input' + str(max_token_count))
+    output_folder = os.path.join(folder_to_save, 'processed_output' + str(max_token_count))
     create_folders(input_output_folder, output_folder)
 
     max_percentage_masked = 0.0  # To track the maximum percentage of nodes masked
@@ -141,7 +150,9 @@ def structurally_mask_contiguous_elements_and_save(
                 modified_nodes.append(node)
 
         #Prepend the modified nodes with "<PRE>"
-        modified_nodes = ["<PRE>"] + modified_nodes
+        modified_nodes =  modified_nodes
+        prefix_nodes = ["<PRE>"] + prefix_nodes
+        suffix_nodes = ["<SUF>"] + suffix_nodes
         # Update links: remove links connected to masked nodes
         modified_links = []
         masked_links = []
