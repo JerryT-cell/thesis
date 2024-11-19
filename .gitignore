@@ -2,18 +2,18 @@
 *
 
 # Do not ignore these directories
-!data_preparation/
-!dataset_preparation_for_fine-tuning/
-!fine-tuning_llms/
-!statistical_analysis/
+!dataset_preparation/dataset_preparation_for_preprocessing/
+!dataset_preparation/dataset_preparation_for_fine-tuning/
+!fine-tuning/
+!util_folder/statistical_analysis/
 !util_folder/
 !README.md
 !Inferencing.ipynb
 
 
 # Do not ignore files within these directories
-!data_preparation/**
-!dataset_preparation_for_fine-tuning/**
-!fine-tuning_llms/**
-!statistical_analysis/**
+!dataset_preparation/dataset_preparation_for_preprocessing/**
+!dataset_preparation/dataset_preparation_for_fine-tuning/**
+!fine-tuning/**
+!util_folder/statistical_analysis/**
 !util_folder/**

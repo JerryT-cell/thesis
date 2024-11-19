@@ -209,7 +209,7 @@ def extract_a_class_at_random_from_folder(folder_path):
 
 def extract_software_models_type(folder_path):
     """
-    Extracts the type of software models in the files in a folder.
+    Extracts the type of software fine_tuned_models in the files in a folder.
     :param folder_path:
     :return: none
     """
