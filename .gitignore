@@ -7,6 +7,7 @@
 !fine-tuning/
 !util_folder/statistical_analysis/
 !util_folder/
+!testing_llms/
 !README.md
 !Inferencing.ipynb
 
@@ -17,3 +18,4 @@
 !fine-tuning/**
 !util_folder/statistical_analysis/**
 !util_folder/**
+!testing_llms/**
