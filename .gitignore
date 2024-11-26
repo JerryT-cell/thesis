@@ -8,6 +8,7 @@
 !util_folder/statistical_analysis/
 !util_folder/
 !testing_llms/
+!fine_tuning_files_H100/
 !README.md
 !Inferencing.ipynb
 
@@ -19,3 +20,4 @@
 !util_folder/statistical_analysis/**
 !util_folder/**
 !testing_llms/**
+!fine_tuning_files_H100/**
