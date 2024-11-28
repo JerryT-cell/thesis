@@ -15,12 +15,12 @@ def copy_file(file_path, destination_folder):
     os.makedirs(destination_folder, exist_ok=True)
     shutil.copy(file_path, destination_folder)
 
-def create_folders(input_folder: str, output_folder= None):
-    if not os.path.exists(input_folder):
-        os.makedirs(input_folder)
+def create_folders(folder_one = None, folder_two= None):
+    if folder_one is not None and not os.path.exists(folder_one):
+        os.makedirs(folder_one)
 
-    if output_folder is not None and not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+    if folder_two is not None and not os.path.exists(folder_two):
+        os.makedirs(folder_two)
 
 
 def write_into_file(file_path, data):
