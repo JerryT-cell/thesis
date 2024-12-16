@@ -1,5 +1,6 @@
 import unittest
-from accuracy import accuracy_less_strict, accuracy_strict
+from accuracy import  accuracy_strict
+from accuracy_flex import accuracy_less_strict
 
 '''
 Overview of Test Cases
@@ -36,8 +37,11 @@ class TestGraphAccuracy(unittest.TestCase):
         y_true = {"nodes": [], "links": []}
         y_pred = {"nodes": [], "links": []}
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1.0)
         self.assertEqual(link_acc_ls, 1.0)
@@ -61,8 +65,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)  # 2 correct nodes
         self.assertEqual(link_acc_ls, 1.0)  # No links to evaluate
@@ -84,8 +91,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1.0)  # Attributes match ignoring 'id'
         self.assertEqual(link_acc_ls, 1.0)  # No links
@@ -113,8 +123,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)  # All nodes matched ignoring 'id'
         self.assertEqual(link_acc_ls, 1/1)  # One correct link 3<->1 (after mapping) -> 10
@@ -142,8 +155,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)  # All nodes matched ignoring 'id'
         self.assertEqual(link_acc_ls, 1/1)  # One correct link
@@ -168,8 +184,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Expected after truncation:
         # Only first predicted node retained: {"id": 20, "type": "class", "name": "order"}
@@ -203,8 +222,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)  # All nodes matched ignoring 'id'
         self.assertEqual(link_acc_ls, 1/1)  # One correct link
@@ -229,8 +251,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Truncate predicted nodes to 2, '5' is removed
         self.assertEqual(node_acc_ls, 2/2)
@@ -265,8 +290,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Only 2 nodes are present
         self.assertEqual(node_acc_ls, 2/3)  # Two correct matches
@@ -296,8 +324,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)
         # Only one true link, and 'a'->'b' matches '1'->'2' after mapping
@@ -330,8 +361,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 3/3)
         self.assertEqual(link_acc_ls, 1/2)  # Only one correct link out of two
@@ -359,8 +393,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)
         self.assertEqual(link_acc_ls, 0/1)  # Direction matters
@@ -384,8 +421,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)
         self.assertEqual(link_acc_ls, 1.0)
@@ -409,8 +449,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1/2)  # Only 'b' matches
         self.assertEqual(link_acc_ls, 1.0)  # No links
@@ -434,16 +477,22 @@ class TestGraphAccuracy(unittest.TestCase):
         }
 
         # Comparing with true having one node
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1/1)
         self.assertEqual(link_acc_ls, 1.0)
         self.assertEqual(node_acc_s, 0/1)
         self.assertEqual(link_acc_s, 1.0)
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred, truncate=False)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred, truncate= False)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred, truncate=False )
+        nodes_link_s = accuracy_strict(y_true, y_pred,  truncate=False)
+
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1/2)
         self.assertEqual(link_acc_ls, 1.0)
@@ -477,9 +526,11 @@ class TestGraphAccuracy(unittest.TestCase):
                 {"source": "a", "target": "c"},  # Extra link
             ]
         }
-
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 3/3)
         self.assertEqual(link_acc_ls, 3/4)  # Extra link affect because it is a matched node
@@ -514,8 +565,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 4/4)
         self.assertEqual(link_acc_ls, 2/3)  # affects because it is a matched node
@@ -541,8 +595,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1/3)  # Only 'a' matches
         self.assertEqual(link_acc_ls, 1.0)  # No links
@@ -577,8 +634,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 3/3)
         self.assertEqual(link_acc_ls, 2/3)  # Two correct links
@@ -615,17 +675,24 @@ class TestGraphAccuracy(unittest.TestCase):
         }
 
         # Single node
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1/1)
         self.assertEqual(link_acc_ls, 1.0)
         self.assertEqual(node_acc_s, 0/1)
         self.assertEqual(link_acc_s, 1.0)  # Extra attributes are ignored in strict?
 
+        # Single node
+        nodes_link_ls_ex = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s_ex = accuracy_strict(y_true, y_pred)
+
         # Multiple nodes
-        node_acc_ls_ex, link_acc_ls_ex = accuracy_less_strict(y_true_extra, y_pred_extra)
-        node_acc_s_ex, link_acc_s_ex = accuracy_strict(y_true_extra, y_pred_extra)
+        node_acc_ls_ex, link_acc_ls_ex = nodes_link_ls_ex["node accuracy"], nodes_link_ls_ex["link accuracy"]
+        node_acc_s_ex, link_acc_s_ex = nodes_link_s_ex["node accuracy"], nodes_link_s_ex["link accuracy"]
 
         self.assertEqual(node_acc_ls_ex, 2/2)
         self.assertEqual(link_acc_ls_ex, 1.0)
@@ -657,8 +724,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Only 'a' and 'b' are considered
         self.assertEqual(node_acc_ls, 2/2)
@@ -692,8 +762,11 @@ class TestGraphAccuracy(unittest.TestCase):
         true_acc = len(y_true_links) / len(y_pred_links)
 
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, num_nodes / num_nodes)
         # Only the first num_nodes -1 links match
@@ -732,8 +805,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 0/2)
         self.assertEqual(link_acc_ls, 0/2)
@@ -757,8 +833,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # In less strict, 'extra' is considered because normalize_nodes does not exclude 'extra'
         # For matching, 'extra' in y_true node1 is not present in y_pred node a, so no match
@@ -794,8 +873,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 3/3)
         self.assertEqual(link_acc_ls, 1/3)
@@ -829,8 +911,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/3)
         self.assertEqual(link_acc_ls, 1/3)
@@ -864,8 +949,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Only first 3 nodes are considered (truncate 'd')
         self.assertEqual(node_acc_ls, 3/3)
@@ -900,8 +988,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Truncate to first 3 nodes: 'a', 'b', 'c'
         # 'a' matches '1', 'c' matches '3', 'b' does not match '2'
@@ -938,8 +1029,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 3/3)
         self.assertEqual(link_acc_ls, 2/3)  # Extra link does not affect
@@ -976,8 +1070,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Truncate to first 4 nodes (no truncation needed)
         # All nodes match ignoring 'id'
@@ -1009,8 +1106,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)
         self.assertEqual(link_acc_ls, 1.0)
@@ -1033,8 +1133,11 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 1/2)
         self.assertEqual(link_acc_ls, 1.0)
@@ -1063,8 +1166,11 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_s = accuracy_strict(y_true, y_pred)
+        
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         self.assertEqual(node_acc_ls, 2/2)
         self.assertEqual(link_acc_ls, 0.5)
