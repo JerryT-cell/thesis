@@ -1,6 +1,6 @@
 from re import match
 from typing import List, Dict, Any, Set
-
+from collections import defaultdict
 
 
 
@@ -445,7 +445,6 @@ def is_link_associated(link: Dict[str, Any], node_id: Any) -> bool:
     :return: True if the link is associated with the node, False otherwise.
     """
     return link.get('source') == node_id or link.get('target') == node_id
-
 
 
 def attach_links_to_nodes(nodes: List[Dict[str, Any]], links: List[Dict[str, Any]]) -> List[Dict[str, Any]]:

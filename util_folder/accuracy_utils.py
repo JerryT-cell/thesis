@@ -1,13 +1,17 @@
 from typing import List, Dict, Any
+from collections import defaultdict
 
-
-def initialize_data(y_true, y_pred, truncate):
+def initialize_data(y_true, y_pred, truncate , normalize = True):
     """
     Initialize the data and truncate predicted nodes if there are more than in the reference.
     """
     true_nodes, true_links, pred_nodes, pred_links = get_nodes_and_links(y_true, y_pred)
     if truncate:
         pred_nodes, pred_links = truncate_predicted_nodes(true_nodes, pred_nodes, pred_links)
+
+    if normalize:
+        true_nodes = normalize_nodes(true_nodes)
+        pred_nodes = normalize_nodes(pred_nodes)
     return true_nodes, true_links, pred_nodes, pred_links
 
 
@@ -70,7 +74,7 @@ def normalize_nodes(nodes):
         normalized.append(normalized_node)
     return normalized
 
-def nodes_equal(t_node, p_node, strict=False):
+def nodes_equal(t_node, p_node, strict=False, threshold=None, model=None):
     """
     Determine if two nodes are equal based on the matching criteria.
 
@@ -86,6 +90,7 @@ def nodes_equal(t_node, p_node, strict=False):
     for k, v in t_node.items():
         if not strict and k == "id":
             continue
+
         if k not in p_node or p_node[k] != v:
             return 0
     if strict:
@@ -94,6 +99,24 @@ def nodes_equal(t_node, p_node, strict=False):
             if t_node.get(k, None) != v:
                 return 0
     return 1
+
+
+def get_candidates(t, normalized_pred_nodes, strict=False, threshold=None, model=None):
+    """
+    Get the candidates for a given node in the predictions.
+    :param t:  The node to match
+    :param normalized_pred_nodes:  The normalized predicted nodes
+    :param strict:  If True, all attributes including 'id' must match.
+    :return:
+    """
+    candidates = []
+    pred_nodes_copy = normalized_pred_nodes[:]
+    for i, p in enumerate(pred_nodes_copy):
+        if nodes_equal(t, p["node"], strict, threshold=threshold, model=model) == 1:
+            candidates.append(p)
+            del pred_nodes_copy[i]
+
+    return candidates
 
 def attach_links_to_nodes(nodes: List[Dict[str, Any]], links: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
@@ -122,14 +145,10 @@ def attach_links_to_nodes(nodes: List[Dict[str, Any]], links: List[Dict[str, Any
         # Associate link with source node
         if source_id in node_id_to_links:
             node_id_to_links[source_id].append(link)
-        else:
-            print(f"Warning: Source node ID {source_id} in link {link} not found in nodes.")
 
         # Associate link with target node
         if target_id in node_id_to_links:
             node_id_to_links[target_id].append(link)
-        else:
-            print(f"Warning: Target node ID {target_id} in link {link} not found in nodes.")
 
     # Prepare the final list of nodes with their associated links
     nodes_with_links = []
@@ -181,14 +200,10 @@ def attach_links_to_nodes_dict(nodes: List[Dict[str, Any]], links: List[Dict[str
         # Associate link with source node
         if source_id in node_id_to_links:
             node_id_to_links[source_id].append(link)
-        else:
-            print(f"Warning: Source node ID {source_id} in link {link} not found in nodes.")
 
         # Associate link with target node
         if target_id in node_id_to_links:
             node_id_to_links[target_id].append(link)
-        else:
-            print(f"Warning: Target node ID {target_id} in link {link} not found in nodes.")
 
     # Prepare the final dictionary mapping node IDs to their data and associated links
     nodes_with_links_dict = {}
@@ -238,3 +253,143 @@ def create_node_link_dict(nodes: List[Dict[str, Any]], links: List[Dict[str, Any
         result.setdefault(node_id, []).append(entry)
 
     return result
+
+def compute_accuracies(matches, true_nodes, pred_nodes, true_links, pred_links, ids_to_pred_links):
+    """
+    Compute node and link accuracies based on the matches and return a dictionary.
+    - Node accuracy is the proportion of matched nodes to the maximum number of nodes.
+    - Link accuracy is the proportion of matched links to the maximum number of links. Only links of matched nodes are
+    considered.
+    params:
+    - matches: A dictionary of matches between true and predicted nodes.
+    - true_nodes: A list of true node dictionaries.
+    - pred_nodes: A list of predicted node dictionaries.
+    - true_links: A list of true link dictionaries.
+    - pred_links: A list of predicted link dictionaries.
+    - ids_to_pred_links: A dictionary mapping link IDs to predicted link dictionaries.
+    """
+
+    # recall data structure of matches is {node_id: (candidate_id, number_of_links_matched_with_the_true_node, number_of_links_in_candidate_c, true node with links), ...}
+    # Remove nodes with no match
+    matches = {k: v for k, v in matches.items() if v is not None}
+
+    # Calculate node accuracy
+    total_true_nodes = len(true_nodes)
+    if total_true_nodes != 0:
+        total_pred_nodes = len(pred_nodes)
+        denominator_nodes = max(total_true_nodes, total_pred_nodes)
+        matched_nodes = len(matches)
+        accuracy_nodes = matched_nodes / denominator_nodes if denominator_nodes > 0 else 1.0 # avoid division by zero
+    else:
+        matched_nodes = 0
+        accuracy_nodes = 1.0 if not pred_nodes else 0.0
+
+    # Calculate link accuracy
+    if not true_links:
+        # If no true links, link accuracy depends on whether there are pred links
+        links_accuracy = 1.0 if not pred_links else 0.0
+        return {"node accuracy": accuracy_nodes, "link accuracy": links_accuracy}
+
+    if matched_nodes == 0:
+        # No matched nodes => no matched links
+        return {"node accuracy": accuracy_nodes, "link accuracy": 0.0}
+
+    pred_nodes_ids = set(v[0] for v in matches.values())
+
+    total_number_of_links_matched_with_the_true_node = 0
+    total_number_of_links_in_pred_matched_nodes = 0
+    # get the links (match = True) from ids_to_pred_links and count them
+    for k, v in ids_to_pred_links.items():
+        if v["match"]:
+            total_number_of_links_matched_with_the_true_node += 1
+        if v["source"] in pred_nodes_ids or v["target"] in pred_nodes_ids:
+            total_number_of_links_in_pred_matched_nodes += 1
+
+    all_keys = matches.keys()
+    total_number_of_matched_true_links = 0
+    for l in true_links:
+        if l["source"] in all_keys or l["target"] in all_keys:
+            total_number_of_matched_true_links += 1
+
+
+    # Compute link accuracy
+    denominator_links = max(total_number_of_matched_true_links, total_number_of_links_in_pred_matched_nodes)
+    accuracy_links = total_number_of_links_matched_with_the_true_node / denominator_links if denominator_links > 0 else 1.0
+
+    return {"node accuracy": accuracy_nodes, "link accuracy": accuracy_links}
+
+
+
+def introduce_ids_to_links(links):
+    """
+    Introduce ids to links beginning from 0. links have the form [{"source": source, "target": target}, ...].
+    The new form will be [{"source": source, "target": target, "id": id}, ...]
+    This is because the links may contain duplicates, and we need to distinguish them.
+    :param links : list of links
+    :return: the links with ids
+    """
+    # introduce ids to links beginning from 0. links have the form [{"source": source, "target": target}, ...], the new form will be [{"source": source, "target": target, "id": id}, ...]
+    links = [{"source": l["source"], "target": l["target"], "id": i} for i, l in enumerate(links)]
+    return links
+
+def links_with_ids_to_dict(links):
+    """
+    Convert a list of links with IDs to a dictionary with the ID as the key and the link as the value.
+    Adds a boolean value to the link to indicate if it is a match, add the boolean as "match" = False
+    :param links: list of links with ids
+    :return: dictionary with the id as the key and the link as the value
+    """
+    res_link = {}
+    for link in links:
+        link["match"] = False
+        res_link[link["id"]] = link
+    return res_link
+
+
+def attach_links_to_nodes_with_duplicates(nodes: List[Dict[str, Any]], links: List[Dict[str, Any]]) -> List[
+    Dict[str, Any]]:
+    """
+    Associates each node with its connected links, allowing duplicate node IDs.
+
+    :param nodes: A list of node dictionaries. Node IDs may not be unique.
+    :param links: A list of link dictionaries. Each link must have 'source' and 'target' keys.
+    :return: A list of dictionaries, each containing a 'node' and its associated 'links'.
+    """
+
+    # Create a mapping from node_id to list of node dicts
+    node_id_to_nodes = defaultdict(list)
+    for node in nodes:
+        node_id = node.get('id')
+        if node_id is not None:
+            node_id_to_nodes[node_id].append(node)
+
+    # Initialize a mapping from node to its list of associated links
+    node_to_links = defaultdict(list)
+
+    # Associate each link with all source and target nodes
+    for link in links:
+        source_id = link.get('source')
+        target_id = link.get('target')
+
+        if source_id is not None:
+            source_nodes = node_id_to_nodes.get(source_id)
+            if source_nodes:
+                for src_node in source_nodes:
+                    node_to_links[id(src_node)].append(link)
+
+        if target_id is not None:
+            target_nodes = node_id_to_nodes.get(target_id)
+            if target_nodes:
+                for tgt_node in target_nodes:
+                    node_to_links[id(tgt_node)].append(link)
+
+    # Prepare the final list of nodes with their associated links
+    nodes_with_links = []
+    for node in nodes:
+        associated_links = node_to_links.get(id(node), [])
+        nodes_with_links.append({
+            "node": node,
+            "links": associated_links
+        })
+
+    return nodes_with_links

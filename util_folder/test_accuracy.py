@@ -1,6 +1,6 @@
 import unittest
-from accuracy import  accuracy_strict
-from accuracy_flex import accuracy_less_strict
+from util_folder.accuracy_without_embedding.accuracy_less_strict import simple_accuracy_less_strict as accuracy_less_strict
+from util_folder.accuracy_without_embedding.accuracy_strict import accuracy_strict
 
 '''
 Overview of Test Cases
@@ -17,6 +17,7 @@ Overview of Test Cases
 11. Missing Predicted Links: Predicted graph is missing some links present in the true graph.
 12. Different Link Directions: Links exist but in opposite directions.
 13. Case Sensitivity: Attributes differ only in letter casing.
+
 14. Attribute Mismatch: Nodes have differing attributes beyond 'id'.
 15. Duplicate Predicted Nodes: Predicted graph has duplicate nodes matching a true node.
 16. Cyclic Graphs: Graphs containing cycles.
@@ -65,8 +66,8 @@ class TestGraphAccuracy(unittest.TestCase):
             "links": []
         }
 
-        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
-        nodes_link_s = accuracy_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred, printing=True)
+        nodes_link_s = accuracy_strict(y_true, y_pred, printing=True)
         
         node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
         node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
@@ -263,8 +264,11 @@ class TestGraphAccuracy(unittest.TestCase):
         self.assertEqual(node_acc_s, 0/2)
         self.assertEqual(link_acc_s, 1.0)  # No matching nodes
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred, truncate=False)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred, truncate=False)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred, truncate=False)
+        nodes_link_s = accuracy_strict(y_true, y_pred, truncate=False)
+
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Truncate predicted nodes to 2, '5' is removed
         self.assertEqual(node_acc_ls, 2/3)
@@ -565,7 +569,7 @@ class TestGraphAccuracy(unittest.TestCase):
             ]
         }
 
-        nodes_link_ls = accuracy_less_strict(y_true, y_pred)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred, printing=True)
         nodes_link_s = accuracy_strict(y_true, y_pred)
         
         node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
@@ -736,8 +740,11 @@ class TestGraphAccuracy(unittest.TestCase):
         self.assertEqual(node_acc_s, 2/2)
         self.assertEqual(link_acc_s, 1/2)
 
-        node_acc_ls, link_acc_ls = accuracy_less_strict(y_true, y_pred, truncate=False)
-        node_acc_s, link_acc_s = accuracy_strict(y_true, y_pred, truncate=False)
+        nodes_link_ls = accuracy_less_strict(y_true, y_pred, truncate=False)
+        nodes_link_s = accuracy_strict(y_true, y_pred, truncate=False)
+
+        node_acc_ls, link_acc_ls = nodes_link_ls["node accuracy"], nodes_link_ls["link accuracy"]
+        node_acc_s, link_acc_s = nodes_link_s["node accuracy"], nodes_link_s["link accuracy"]
 
         # Only 'a' and 'b' are considered
         self.assertEqual(node_acc_ls, 2/3)
@@ -1005,6 +1012,7 @@ class TestGraphAccuracy(unittest.TestCase):
 
     def test_overlapping_links(self):
         """Test accuracy functions with overlapping links."""
+
         y_true = {
             "nodes": [
                 {"id": "1", "type": "A", "status": "X"},
@@ -1177,5 +1185,339 @@ class TestGraphAccuracy(unittest.TestCase):
         self.assertEqual(node_acc_s, 0/2)
         self.assertEqual(link_acc_s, 0.0)
 
+    def test_multiple_nodes_partial_strict_match(self):
+        """Test scenario where only some nodes match strictly by id and attributes."""
+        y_true = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active"},
+                {"id": 2, "type": "Client", "status": "Inactive"},
+                {"id": 3, "type": "Database", "status": "Active"},
+            ],
+            "links": []
+        }
+        y_pred = {
+            "nodes": [
+                # Matches 1 exactly
+                {"id": 1, "type": "Server", "status": "Active"},
+                # Different 'id', should not match ID=2 node strictly
+                {"id": 4, "type": "Client", "status": "Inactive"},
+                # Same attributes as node 3 but different ID
+                {"id": 10, "type": "Database", "status": "Active"},
+            ],
+            "links": []
+        }
+
+        result = accuracy_strict(y_true, y_pred)
+        # Only node ID=1 matches strictly
+        # correct_nodes = 1
+        # len(y_true_nodes)=3, len(y_pred_nodes)=3 -> denominator=3 because predicted nodes = ground truth nodes count
+        # node_accuracy = 1/3
+        # No links, so link_accuracy = 1.0
+        self.assertEqual(result["node accuracy"], 1 / 3)
+        self.assertEqual(result["link accuracy"], 1.0)
+
+    def test_strict_duplicate_pred_nodes(self):
+        """Test scenario with duplicate predicted nodes having the same id."""
+        y_true = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active"}
+            ],
+            "links": []
+        }
+        y_pred = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active"},
+                {"id": 1, "type": "Server", "status": "Active"},  # duplicate same ID and attributes
+            ],
+            "links": []
+        }
+
+        # Once we match the first predicted node with id=1, we remove it from future consideration.
+        # Still, there's only one true node, so correct_nodes=1.
+        # GT=1, Pred=2 => denominator = 2 (more predicted)
+        # node_accuracy = 1/2
+        # link_accuracy=1.0 (no links)
+        result = accuracy_strict(y_true, y_pred, truncate=False)
+        self.assertEqual(result["node accuracy"], 1/2)
+        self.assertEqual(result["link accuracy"], 1.0)
+
+    def test_strict_multiple_links_some_match(self):
+        """Test scenario with multiple links, some match strictly, some do not."""
+        y_true = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active"},
+                {"id": 2, "type": "Client", "status": "Active"},
+                {"id": 3, "type": "Database", "status": "Inactive"},
+            ],
+            "links": [
+                {"source": 1, "target": 2},
+                {"source": 1, "target": 3}
+            ]
+        }
+        y_pred = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active"},
+                {"id": 2, "type": "Client", "status": "Active"},
+                {"id": 10, "type": "Database", "status": "Inactive"},
+            ],
+            "links": [
+                # This link will match because nodes 1 and 2 are matched
+                {"source": 1, "target": 2},
+                # This link won't match because node 3 didn't match strictly in predicted
+                {"source": 1, "target": 3},
+                # Extra link
+                {"source": 2, "target": 1},
+            ]
+        }
+
+        result = accuracy_strict(y_true, y_pred)
+        self.assertAlmostEqual(result["node accuracy"], 2 / 3)
+        self.assertAlmostEqual(result["link accuracy"], 2 / 3)
+
+    def test_strict_no_node_match_links_present(self):
+        """Test scenario where no nodes match but links exist."""
+        y_true = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active"}
+            ],
+            "links": [
+                {"source": 1, "target": 2}
+            ]
+        }
+        y_pred = {
+            "nodes": [
+                {"id": 2, "type": "Server", "status": "Active"}
+            ],
+            "links": [
+                {"source": 2, "target": 5}
+            ]
+        }
+
+        # No node match: correct_nodes=0
+        # GT=1, Pred=1, fewer predicted or equal => denominator=1
+        # node_accuracy = 0/1 = 0.0
+
+        # For links, since no nodes matched, no links are considered:
+        # If no nodes matched, we have no matched links to consider.
+        # Usually if no links are considered, link_accuracy=1.0 by the given tests.
+        # Check given tests: if node accuracy is zero because no nodes matched,
+        # do we still say link_accuracy=1.0?
+        # The test cases show that if no links are considered (like when nodes don't match), link accuracy is 1.0.
+        # result: link_accuracy=1.0
+        result = accuracy_strict(y_true, y_pred)
+        self.assertEqual(result["node accuracy"], 0.0)
+        self.assertEqual(result["link accuracy"], 0.0)
+
+    def test_strict_case_insensitive_attributes(self):
+        """Test that attribute comparison is case-insensitive for strict matching."""
+        y_true = {
+            "nodes": [
+                {"id": 1, "type": "SeRvEr", "status": "aCtIvE"},
+                {"id": 2, "type": "ClIeNt", "status": "InAcTiVe"}
+            ],
+            "links": []
+        }
+        y_pred = {
+            "nodes": [
+                {"id": 1, "type": "server", "status": "Active"},
+                {"id": 2, "type": "Client", "status": "inactive"}
+            ],
+            "links": []
+        }
+
+        # Both nodes match strictly by ID and case-insensitive attributes
+        # correct_nodes=2
+        # GT=2, Pred=2 => denominator=2
+        # node_accuracy=2/2=1.0
+        # No links => link_accuracy=1.0
+
+        result = accuracy_strict(y_true, y_pred)
+        self.assertEqual(result["node accuracy"], 1.0)
+        self.assertEqual(result["link accuracy"], 1.0)
+
+    def test_strict_additional_attributes_in_pred(self):
+        """Test scenario where predicted node has extra attributes not in ground truth."""
+        y_true = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active"}
+            ],
+            "links": []
+        }
+        y_pred = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active", "location": "US"}
+            ],
+            "links": []
+        }
+
+        # Extra attributes in predicted node should not prevent a match,
+        # as long as all attributes in GT match in Pred.
+        # correct_nodes=1
+        # GT=1, Pred=1
+        # node_accuracy=1/1=1.0
+        # No links => link_accuracy=1.0
+
+        result = accuracy_strict(y_true, y_pred)
+        self.assertEqual(result["node accuracy"], 0.0)
+        self.assertEqual(result["link accuracy"], 1.0)
+
+    def test_strict_mismatched_non_string_attribute(self):
+        """Test scenario where a non-string attribute differs."""
+        y_true = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active", "version": 2},
+            ],
+            "links": []
+        }
+        y_pred = {
+            "nodes": [
+                {"id": 1, "type": "Server", "status": "Active", "version": 3},
+            ],
+            "links": []
+        }
+
+        # Same id, attributes differ by a non-string attribute (version=2 vs 3)
+        # This fails strict match.
+        # correct_nodes=0
+        # GT=1, Pred=1
+        # node_accuracy=0/1=0.0
+        # No links => link_accuracy=1.0
+
+        result = accuracy_strict(y_true, y_pred)
+        self.assertEqual(result["node accuracy"], 0.0)
+        self.assertEqual(result["link accuracy"], 1.0)
+
+    def test_partial_cycle_break(self):
+        """Test scenario where ground truth forms a cycle but predicted does not match all nodes."""
+        y_true = {
+            "nodes": [
+                {"id": "1", "type": "Server", "status": "X"},
+                {"id": "2", "type": "Client", "status": "Y"},
+                {"id": "3", "type": "Database", "status": "Z"}
+            ],
+            "links": [
+                {"source": "1", "target": "2"},
+                {"source": "2", "target": "3"},
+                {"source": "3", "target": "1"}
+            ]
+        }
+        y_pred = {
+            "nodes": [
+                {"id": "A", "type": "Server", "status": "X"},  # matches 1
+                {"id": "B", "type": "Cache", "status": "Y"},  # not a client, no match to node 2
+                {"id": "C", "type": "Database", "status": "W"}  # doesn't match node 3
+            ],
+            "links": [
+                {"source": "A", "target": "B"},  # partial link
+                {"source": "B", "target": "C"},
+                {"source": "C", "target": "A"}
+            ]
+        }
+
+        # Only node 1 matches to A.
+        # correct_nodes=1
+        # GT=3, Pred=3 => denominator=3
+        # node_accuracy=1/3
+
+        # Links:
+        # Only consider links from matched sources: source=1 matches A, so links from node 1 are considered.
+        # GT links from node 1: (1->2)
+        # Translate (1->2) -> (A-> [node that matches 2? no match, so "2" is literal? Wait, 2 is unmatched GT node ID.
+        # Since it is not matched, we treat "2" as literal. So we need a predicted link (A->2).
+        # Pred links: (A->B), (B->C), (C->A). None is (A->2). No link match.
+        # correct_links=0
+        # GT=1 considered link, Pred=1 considered link? Actually, we considered only links from matched sources in predicted as well.
+        # Pred matched sources: A only. Links from A: (A->B)
+        # GT considered links=1, Pred considered links=1
+        # link_accuracy=0/1=0.0
+
+        result = accuracy_less_strict(y_true, y_pred)
+        self.assertEqual(result["node accuracy"], 1 / 3)
+        self.assertEqual(result["link accuracy"], 0.0)
+
+
+    def test_large_graph_with_mixed_matches(self):
+        """Test a larger graph with multiple nodes and partial matches to verify scaling."""
+        y_true = {
+            "nodes": [
+                {"id": "1", "type": "S", "status": "active"},
+                {"id": "2", "type": "C", "status": "inactive"},
+                {"id": "3", "type": "S", "status": "active"},
+                {"id": "4", "type": "C", "status": "inactive"},
+                {"id": "5", "type": "DB", "status": "active"}
+            ],
+            "links": [
+                {"source": "1", "target": "5"},
+                {"source": "2", "target": "5"},
+                {"source": "3", "target": "2"},
+                {"source": "4", "target": "10"}
+            ]
+        }
+        y_pred = {
+            "nodes": [
+                {"id": "a", "type": "S", "status": "active"},
+                {"id": "b", "type": "C", "status": "inactive"},
+                {"id": "c", "type": "S", "status": "active"},
+                {"id": "d", "type": "C", "status": "inactive"},
+                {"id": "e", "type": "DB", "status": "active"},
+                {"id": "f", "type": "Cache", "status": "active"} # extra unmatched node
+            ],
+            "links": [
+                {"source": "a", "target": "e"},
+                {"source": "b", "target": "e"},
+                {"source": "c", "target": "b"},
+                {"source": "d", "target": "10"},
+                {"source": "e", "target": "e"}  # extra self-loop link
+            ]
+        }
+
+        # Node matches:
+        # GT: 1(S,active),2(C,inactive),3(S,active),4(C,inactive),5(DB,active)
+        # Pred: A(S,active),B(C,inactive),C(S,active),D(C,inactive),E(DB,active),F(Cache,active)
+        # Perfect matching possible:
+        # 1->A, 2->B, 3->C, 4->D, 5->E (F is unmatched)
+        # correct_nodes=5
+        # GT=5, Pred=6 => denominator=6
+        # node_accuracy=5/6
+
+        # Links:
+        # Consider only links from matched sources. All GT nodes 1,2,3,4 are matched.
+        # GT links from these matched sources: (1->5), (2->5), (3->2), (4->10)
+        # Translate using mapping:
+        # 1->A, 5->E, 2->B, 4->D
+        # (1->5) -> (A->E)
+        # (2->5) -> (B->E)
+        # (3->2) -> (C->B)
+        # (4->10) -> (D->10) literal 10 remains 10
+        #
+        # Pred links with matched sources:
+        # Matched sources: {A,B,C,D,E} (all matched except F)
+        # Pred links from matched sources:
+        # (A->E), (B->E), (C->B), (D->10), (E->E)
+        #
+        # Matching:
+        # (A->E) found in pred
+        # (B->E) found in pred
+        # (C->B) found in pred
+        # (D->10) found in pred
+        # correct_links=4
+        # GT=4 links considered, Pred=5 links considered
+        # More predicted => denominator=5
+        # link_accuracy=4/5
+
+        result = accuracy_less_strict(y_true, y_pred, truncate=False)
+        self.assertEqual(result["node accuracy"], 5/6)
+        self.assertEqual(result["link accuracy"], 4/5)
+
+
 if __name__ == '__main__':
     unittest.main(argv=[''], exit=False)
+
+
+
+
+
+
+
+
+

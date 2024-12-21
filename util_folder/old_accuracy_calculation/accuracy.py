@@ -1,3 +1,4 @@
+from util_folder.accuracy_utils import nodes_equal
 from util_folder.accuracy_utils import get_nodes_and_links, truncate_predicted_nodes, normalize_nodes
 
 def accuracy_less_strict(y_true, y_pred, truncate=True, printing = False):
